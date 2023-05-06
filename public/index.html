@@ -31,7 +31,13 @@
     }
 
     setInterval(function() {
-      ws.send('Hello, Server!');
+      var command = {
+        "name": "moveSmooth",
+        "param1": Math.random() * 1024,
+        "param2": Math.random() * 1024,
+        "param3": [1.0, 2.0]
+      };
+      ws.send(JSON.stringify(command));
     }, 1000);
   </script>
 </body>
