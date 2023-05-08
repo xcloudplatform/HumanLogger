@@ -18,7 +18,9 @@
 !README.md
 !LICENSE
 
-# !Makefile
+!Makefile
+!*.proto
 
 # ...even if they are in subdirectories
 !*/
+
