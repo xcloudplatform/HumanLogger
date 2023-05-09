@@ -1,5 +1,8 @@
 syntax = "proto3";
 
+import "google/protobuf/any.proto";
+
+
 package protobuf;
 
 option go_package="github.com/ClickerAI/ClickerAI/proto";
@@ -26,7 +29,7 @@ service RobotGo {
 message MoveSmoothRequest {
   int32 x = 1;
   int32 y = 2;
-  repeated float args = 3;
+  repeated google.protobuf.Any args = 3;
 }
 
 message MoveSmoothResponse {
@@ -36,6 +39,7 @@ message MoveSmoothResponse {
 message MoveRelativeRequest {
   int32 x = 1;
   int32 y = 2;
+  repeated google.protobuf.Any args = 3;
 }
 
 message MoveRelativeResponse {}
@@ -43,7 +47,7 @@ message MoveRelativeResponse {}
 message MoveSmoothRelativeRequest {
   int32 x = 1;
   int32 y = 2;
-  repeated float args = 3;
+  repeated google.protobuf.Any args = 3;
 }
 
 message MoveSmoothRelativeResponse {}
@@ -56,7 +60,7 @@ message GetMousePosResponse {
 }
 
 message ClickRequest {
-  repeated string args = 1;
+  repeated google.protobuf.Any args = 1;
 }
 
 message ClickResponse {}
@@ -137,7 +141,7 @@ message MoveResponse {}
 message DragSmoothRequest {
   int32 x = 1;
   int32 y = 2;
-  repeated float args = 3;
+  repeated google.protobuf.Any args = 3;
 }
 
 message DragSmoothResponse {}

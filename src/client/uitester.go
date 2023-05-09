@@ -1,8 +1,8 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"math/rand"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -12,22 +12,48 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/kbinani/screenshot"
+
+	"log"
+	"math/rand"
+
+	pb "github.com/ClickerAI/ClickerAI/src/proto"
+
+	"google.golang.org/grpc"
 )
 
 func main() {
+	conn, err := grpc.Dial(":50005", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("can not connect with server %v", err)
+	}
+
+	// create stream
+	client := pb.NewRobotGoClient(conn)
+
 	a := app.New()
 	w := a.NewWindow("Widgets Demo")
 
-	moveWidget := newCoordsWidget(func(x, y float64) {
-		fmt.Printf("Move Widget Coordinates: x=%f, y=%f\n", x, y)
+	moveWidget := newCoordsWidget(func(x, y int) {
+		fmt.Printf("Move Widget Coordinates: x=%d, y=%d", x, y)
+		client.Move(context.Background(), &pb.MoveRequest{X: int32(x), Y: int32(y)})
 	})
 
-	moveSmoothWidget := newCoordsWidget(func(x, y float64) {
-		fmt.Printf("Move Smooth Widget Coordinates: x=%f, y=%f\n", x, y)
+	moveSmoothWidget := newCoordsWidget(func(x, y int) {
+		fmt.Printf("Move Smooth Widget Coordinates: x=%d, y=%d\n", x, y)
+		client.MoveSmooth(context.Background(), &pb.MoveSmoothRequest{X: int32(x), Y: int32(y)})
+
 	})
 
-	moveAndClickWidget := newCoordsWidget(func(x, y float64) {
-		fmt.Printf("Move and Click Widget Coordinates: x=%f, y=%f\n", x, y)
+	moveAndClickWidget := newCoordsWidget(func(x, y int) {
+		fmt.Printf("Move and Click Widget Coordinates: x=%d, y=%d\n", x, y)
+		client.MoveSmooth(context.Background(), &pb.MoveSmoothRequest{X: int32(x), Y: int32(y)})
+		client.Sleep(context.Background(), &pb.SleepRequest{Tm: int32(1)})
+		// client.Click(context.Background(), &pb.ClickRequest{
+		// 	Args: []*anypb.Any{
+		// 		any.Must(any.New("left")),
+		// 	},
+		// })
+
 	})
 
 	typeWidget := newTypeWidget(func(str string) {
@@ -75,7 +101,7 @@ func randString(length int) string {
 	return string(b)
 }
 
-func newCoordsWidget(callback func(float64, float64)) fyne.CanvasObject {
+func newCoordsWidget(callback func(int, int)) fyne.CanvasObject {
 	screenWidth := float64(screenSize().Width)
 	screenHeight := float64(screenSize().Height)
 
@@ -97,7 +123,7 @@ func newCoordsWidget(callback func(float64, float64)) fyne.CanvasObject {
 		yData.Set(rand.Float64() * screenHeight)
 	})
 	goButton := widget.NewButton("GO!", func() {
-		callback(x, y)
+		callback(int(x), int(y))
 	})
 
 	buttons := container.New(layout.NewGridLayout(2), randButton, goButton)
