@@ -1,4 +1,6 @@
-# Logger
+
+
+## Logger
 
  - Runs in background, no UI
  - Switches to *Active* state when user activity happens
@@ -7,3 +9,8 @@
     - compares with last screenshot taken, discards duplicates
  - Saves screenshot as *timestamp-uuid.png* file
  - Writes CSV file *timestamp-uuid.csv*
+
+
+## Robotizator
+
+ - Provides gRPC interface to mouse/keyboard
