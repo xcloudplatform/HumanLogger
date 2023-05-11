@@ -1,5 +1,5 @@
 
-all: grpc_robo_uiclient grpc_robo_server websocket_robo_server
+all: event_streamer grpc_robo_uiclient grpc_robo_server websocket_robo_server
 
 protoc:
 	@echo "Generating Go files"
@@ -21,10 +21,14 @@ websocket_robo_server:
 	go build -o client \
 		github.com/ClickerAI/ClickerAI/cmd/websocket_robo_server
 
+event_streamer: 
+	@echo "Building event_streamer"
+	go build -o client \
+		github.com/ClickerAI/ClickerAI/cmd/event_streamer
 
 
 clean:
 	go clean github.com/ClickerAI/ClickerAI/...
-	rm -f grpc_robo_uiclient grpc_robo_server websocket_robo_server
+	rm -f event_streamer grpc_robo_uiclient grpc_robo_server websocket_robo_server
 
-.PHONY: grpc_robo_uiclient grpc_robo_server websocket_robo_server protoc
+.PHONY: event_streamer grpc_robo_uiclient grpc_robo_server websocket_robo_server protoc
