@@ -26,8 +26,8 @@ func (ua *UserActivity) start() {
 
 	for {
 		select {
-		case ev := <-evChan:
-			fmt.Println("hook: ", ev)
+		case _ = <-evChan:
+			//fmt.Println("hook: ", ev)
 			ua.setActive(true)
 			ticker.Stop()
 			ticker = time.NewTicker(1 * time.Second)
@@ -79,13 +79,23 @@ func takeScreenshots(userActivity *UserActivity) chan bool {
 				interval = 300 * time.Millisecond
 			}
 			fmt.Println("Sleeping for", interval)
-			time.Sleep(interval)
 
-			fmt.Println("TAKING SCREENSHOT!")
-			//fixme compare screenshot
-			isScreenshotTakenChan <- true
+			select {
+			case <-userActivity.isActiveChan:
+				// Take a screenshot immediately when isActiveChan is changed
+				fmt.Println("TAKING SCREENSHOT! (activeChan changed)")
+				//fixme compare screenshot
+				isScreenshotTakenChan <- true
+
+			case <-time.After(interval):
+				// Take a screenshot after sleeping for the appropriate interval
+				fmt.Println("TAKING SCREENSHOT! (after sleeping)")
+				//fixme compare screenshot
+				isScreenshotTakenChan <- true
+			}
 		}
 	}()
+
 	return isScreenshotTakenChan
 }
 
