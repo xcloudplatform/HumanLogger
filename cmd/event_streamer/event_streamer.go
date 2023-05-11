@@ -72,34 +72,46 @@ func main() {
 	isScreenshotTakenChan := takeScreenshots(userActivity)
 	getWindowTitles(isScreenshotTakenChan)
 	//select {}
-	evChan := filterEvents(userActivity.eventsChan)
+	evChan := filterEvents(userActivity.eventsChan, userActivity)
 	for ev := range evChan {
 		fmt.Println("filtered: ", ev)
 
 	}
 }
 
-func filterEvents(events chan hook.Event) chan hook.Event {
+func filterEvents(events chan hook.Event, userActivity *UserActivity) chan hook.Event {
 	filteredEvents := make(chan hook.Event, 20)
 	var prevEvent hook.Event
 	var firstMouseMoveEvent hook.Event
 
 	go func() {
-		for ev := range events {
-			if ev.Kind == hook.MouseMove {
-				if prevEvent.Kind != hook.MouseMove {
-					// First MouseMove event in the sequence
-					firstMouseMoveEvent = ev
+		for {
+			select {
+			case ev := <-events:
+				if ev.Kind == hook.MouseMove {
+					if prevEvent.Kind != hook.MouseMove {
+						// First MouseMove event in the sequence
+						firstMouseMoveEvent = ev
+						filteredEvents <- ev
+					}
+				} else {
+					if prevEvent.Kind == hook.MouseMove {
+						// Last MouseMove event in the sequence
+						filteredEvents <- firstMouseMoveEvent
+					}
 					filteredEvents <- ev
 				}
-			} else {
-				if prevEvent.Kind == hook.MouseMove {
-					// Last MouseMove event in the sequence
-					filteredEvents <- firstMouseMoveEvent
+				prevEvent = ev
+			case isActive := <-userActivity.isActiveChan:
+				if !isActive {
+					if prevEvent.Kind == hook.MouseMove {
+						filteredEvents <- prevEvent
+
+					}
 				}
-				filteredEvents <- ev
+
 			}
-			prevEvent = ev
+
 		}
 	}()
 
