@@ -1,23 +1,30 @@
 
-all: client server
+all: grpc_robo_uiclient grpc_robo_server websocket_robo_server
 
 protoc:
 	@echo "Generating Go files"
 	cd src/proto && protoc --go_out=. --go-grpc_out=. \
 		--go-grpc_opt=paths=source_relative --go_opt=paths=source_relative *.proto
 
-server: protoc
-	@echo "Building server"
-	go build -o server \
-		github.com/ClickerAI/ClickerAI/src/server
+grpc_robo_uiclient: protoc
+	@echo "Building grpc_robo_uiclient"
+	go build -o grpc_robo_uiclient \
+		github.com/ClickerAI/ClickerAI/cmd/grpc_robo_uiclient
 
-client: protoc
-	@echo "Building client"
+grpc_robo_server: protoc
+	@echo "Building grpc_robo_server"
 	go build -o client \
-		github.com/ClickerAI/ClickerAI/src/client
+		github.com/ClickerAI/ClickerAI/cmd/grpc_robo_server
+
+websocket_robo_server: 
+	@echo "Building websocket_robo_server"
+	go build -o client \
+		github.com/ClickerAI/ClickerAI/cmd/websocket_robo_server
+
+
 
 clean:
 	go clean github.com/ClickerAI/ClickerAI/...
-	rm -f server client
+	rm -f grpc_robo_uiclient grpc_robo_server websocket_robo_server
 
-.PHONY: client server protoc
+.PHONY: grpc_robo_uiclient grpc_robo_server websocket_robo_server protoc
