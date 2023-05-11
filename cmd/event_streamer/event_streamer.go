@@ -11,30 +11,37 @@ import (
 type UserActivity struct {
 	isActive      bool
 	isActiveChan  chan bool
+	eventsChan    chan hook.Event
 	lastEventTime time.Time
 	mux           sync.Mutex
 }
 
 func (ua *UserActivity) start() {
-	ua.isActiveChan = make(chan bool, 100)
-	evChan := hook.Start()
-	defer hook.End()
+	ua.isActiveChan = make(chan bool, 11)
+	ua.eventsChan = make(chan hook.Event, 11)
 
-	// start a new ticker to set inactive in future
-	ticker := time.NewTicker(1 * time.Second)
-	defer ticker.Stop()
+	go func() {
+		evChan := hook.Start()
+		defer hook.End()
 
-	for {
-		select {
-		case _ = <-evChan:
-			//fmt.Println("hook: ", ev)
-			ua.setActive(true)
-			ticker.Stop()
-			ticker = time.NewTicker(1 * time.Second)
-		case <-ticker.C:
-			ua.setActive(false)
+		// start a new ticker to set inactive in future
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case ev := <-evChan:
+				//fmt.Println("hook: ", ev)
+				ua.eventsChan <- ev
+				ua.setActive(true)
+				ticker.Stop()
+				ticker = time.NewTicker(1 * time.Second)
+			case <-ticker.C:
+				ua.setActive(false)
+			}
 		}
-	}
+	}()
+
 }
 
 func (ua *UserActivity) setActive(active bool) {
@@ -60,11 +67,43 @@ func (ua *UserActivity) isActiveNow() bool {
 func main() {
 	userActivity := &UserActivity{}
 
-	go userActivity.start()
+	userActivity.start()
 
 	isScreenshotTakenChan := takeScreenshots(userActivity)
 	getWindowTitles(isScreenshotTakenChan)
-	select {}
+	//select {}
+	evChan := filterEvents(userActivity.eventsChan)
+	for ev := range evChan {
+		fmt.Println("filtered: ", ev)
+
+	}
+}
+
+func filterEvents(events chan hook.Event) chan hook.Event {
+	filteredEvents := make(chan hook.Event, 20)
+	var prevEvent hook.Event
+	var firstMouseMoveEvent hook.Event
+
+	go func() {
+		for ev := range events {
+			if ev.Kind == hook.MouseMove {
+				if prevEvent.Kind != hook.MouseMove {
+					// First MouseMove event in the sequence
+					firstMouseMoveEvent = ev
+					filteredEvents <- ev
+				}
+			} else {
+				if prevEvent.Kind == hook.MouseMove {
+					// Last MouseMove event in the sequence
+					filteredEvents <- firstMouseMoveEvent
+				}
+				filteredEvents <- ev
+			}
+			prevEvent = ev
+		}
+	}()
+
+	return filteredEvents
 }
 
 func takeScreenshots(userActivity *UserActivity) chan bool {
