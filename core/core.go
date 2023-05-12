@@ -150,15 +150,21 @@ func makeDeduplicatedScreenshotStream(screenshotStream chan Screenshot) chan Scr
 	// Start a goroutine to read from the input stream and deduplicate the screenshots
 	go func() {
 		for screenshot := range screenshotStream {
+			diffScreenshot := screenshot
+
 			// Check if this screenshot is a duplicate of the last one we received for this display ID
 			if lastScreenshot, ok := lastScreenshots[screenshot.DisplayID]; ok {
-				if CompareScreenshots(&lastScreenshot, &screenshot) {
+
+				same, diffScreenshotPtr, err := screenshot.Diff(&lastScreenshot)
+
+				if err != nil || same {
 					continue
 				}
+				diffScreenshot = *diffScreenshotPtr
 			}
 
 			// This is a new screenshot for this display ID, so send it on the deduplicated stream
-			deduplicatedStream <- screenshot
+			deduplicatedStream <- diffScreenshot
 
 			// Update the last screenshot map
 			lastScreenshots[screenshot.DisplayID] = screenshot
