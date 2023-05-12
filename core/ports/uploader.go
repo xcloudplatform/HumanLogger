@@ -1,5 +1,5 @@
 package ports
 
 type LogUploader interface {
-	Upload(session *LoggingSession) error
+	Upload(session *LoggingSession, packedPath string) error
 }

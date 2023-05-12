@@ -23,6 +23,35 @@ type LocalFileLoggerSession struct {
 	sessionDir string
 }
 
+const LocalSessionSizeRotation = 5 * 1024 * 1024
+
+func (session *LocalFileLoggerSession) IsNeedsRotation() bool {
+	dirPath := session.GetDirPath()
+
+	// Check if the directory exists
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		return false
+	}
+
+	// Walk through all the files in the directory and sum up their sizes
+	var totalSize int64
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
+	if err != nil {
+		return false
+	}
+
+	// Check if the total size of the directory is bigger than 5MB (5*1024*1024 bytes)
+	return totalSize > LocalSessionSizeRotation
+}
+
 func (session *LocalFileLoggerSession) GetID() string {
 	return session.ID
 }

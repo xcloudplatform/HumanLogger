@@ -8,15 +8,15 @@ import (
 )
 
 type UserActivity struct {
-	isActive      bool
-	isActiveChan  chan bool
-	eventsChan    chan hook.Event
-	lastEventTime time.Time
-	mux           sync.Mutex
+	isActive       bool
+	IsActiveStream chan bool
+	eventsChan     chan hook.Event
+	lastEventTime  time.Time
+	mux            sync.Mutex
 }
 
 func (ua *UserActivity) start() {
-	ua.isActiveChan = make(chan bool, 11)
+	ua.IsActiveStream = make(chan bool, 11)
 	ua.eventsChan = make(chan hook.Event, 11)
 
 	go func() {
@@ -49,7 +49,7 @@ func (ua *UserActivity) setActive(active bool) {
 
 	if active != ua.isActive {
 		ua.isActive = active
-		ua.isActiveChan <- active
+		ua.IsActiveStream <- active
 	}
 	if active {
 		ua.lastEventTime = time.Now()

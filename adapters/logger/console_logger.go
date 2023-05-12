@@ -15,6 +15,14 @@ type consoleLoggerSession struct {
 	StartTime time.Time
 }
 
+func (session *consoleLoggerSession) IsNeedsRotation() bool {
+	return false
+}
+
+func (session *consoleLoggerSession) GetDirPath() string {
+	panic("you cant rotate console")
+}
+
 func (session *consoleLoggerSession) GetID() string {
 	return session.ID
 }

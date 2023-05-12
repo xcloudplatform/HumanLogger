@@ -71,7 +71,7 @@ func filterEvents(events chan hook.Event, userActivity *UserActivity) chan hook.
 					filteredEvents <- ev
 				}
 				prevEvent = ev
-			case isActive := <-userActivity.isActiveChan:
+			case isActive := <-userActivity.IsActiveStream:
 				if !isActive {
 					if prevEvent.Kind == hook.MouseMove {
 						filteredEvents <- prevEvent
@@ -102,8 +102,8 @@ func makeScreenshotsAttemptStream(userActivity *UserActivity) chan bool {
 			//fmt.Println("Sleeping for", interval)
 
 			select {
-			case <-userActivity.isActiveChan:
-				// Take a screenshot immediately when isActiveChan is changed
+			case <-userActivity.IsActiveStream:
+				// Take a screenshot immediately when IsActiveStream is changed
 				//fmt.Println("TAKING SCREENSHOT! (activeChan changed)")
 				stream <- true
 

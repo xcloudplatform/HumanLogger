@@ -4,6 +4,8 @@ import "github.com/ClickerAI/ClickerAI/core"
 
 type LoggingSession interface {
 	GetID() string
+	IsNeedsRotation() bool
+	GetDirPath() string
 }
 
 type Logger interface {
