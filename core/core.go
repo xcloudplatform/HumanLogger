@@ -15,19 +15,25 @@ type Core struct {
 
 	lastScreenshots map[int]Screenshot
 	mux             sync.Mutex
+	ocr             Ocr
 }
 
 func NewCore() *Core {
+	ocr := NewOcr()
+
 	return &Core{
 		lastScreenshots: make(map[int]Screenshot),
 
 		UserActivity:     UserActivity{},
 		ScreenshotStream: make(chan Screenshot),
 		UIEventStream:    make(chan UIEvent),
+		ocr:              *ocr,
 	}
 }
 
 func (c *Core) Start() error {
+	go c.ocr.ProcessQueue()
+
 	c.UserActivity.start()
 
 	screenshotsAttemptsStream := makeScreenshotsAttemptStream(&c.UserActivity)

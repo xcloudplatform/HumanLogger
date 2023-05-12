@@ -73,7 +73,13 @@ func (session *LocalFileLoggerSession) GetFilePathForEvents() string {
 }
 
 func NewLocalFileLogger() ports.Logger {
-	return &LocalFileLogger{}
+
+	//ocr := NewOcr()
+	//go ocr.ProcessQueue()
+
+	return &LocalFileLogger{
+		//ocr: *ocr,
+	}
 }
 
 func (l *LocalFileLogger) StartLogging() (ports.LoggingSession, error) {
@@ -101,7 +107,6 @@ func (l *LocalFileLogger) StopLogging(session ports.LoggingSession) error {
 	//todo close
 	return nil
 }
-
 func (l *LocalFileLogger) LogScreenshot(session ports.LoggingSession, screenshot *core.Screenshot) error {
 	timestamp := time.Now().Format("15:04:05.000")
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/ClickerAI/ClickerAI/adapters/logger"
 	"github.com/ClickerAI/ClickerAI/adapters/packer"
 	"github.com/ClickerAI/ClickerAI/adapters/uploader"
@@ -19,7 +20,7 @@ func main() {
 		for ev := range c.UIEventStream {
 			err := l.LogUIEvent(session, &ev)
 			if err != nil {
-				return
+				fmt.Printf("error logging event: %v", err)
 			}
 		}
 	}()
@@ -28,7 +29,7 @@ func main() {
 		for scr := range c.ScreenshotStream {
 			err := l.LogScreenshot(session, &scr)
 			if err != nil {
-				return
+				fmt.Printf("error writing screenshot: %v", err)
 			}
 		}
 	}()
@@ -38,18 +39,24 @@ func main() {
 			if !active && session.IsNeedsRotation() {
 				err := l.StopLogging(session)
 				if err != nil {
-					return
+					fmt.Printf("error stoping logging: %v", err)
+
 				}
 				packedSession, err := p.Pack(session)
 				if err == nil {
 					err := u.Upload(&session, packedSession)
 					if err != nil {
-						return
+						fmt.Printf("error uploading: %v", err)
+
 					}
 				}
 				c.ResetLastScreenshots()
 
-				session, _ = l.StartLogging()
+				session, err = l.StartLogging()
+				if err != nil {
+					fmt.Printf("error starting logging: %v", err)
+
+				}
 
 			}
 		}
