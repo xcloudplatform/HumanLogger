@@ -3,7 +3,7 @@ package logger
 import (
 	"encoding/json"
 	"fmt"
-	"image/png"
+	"golang.org/x/image/tiff"
 	"os"
 	"path/filepath"
 	"time"
@@ -33,7 +33,7 @@ func (session *LocalFileLoggerSession) GetDirPath() string {
 }
 
 func (session *LocalFileLoggerSession) GetFilePathForScreenshot(screenshot *core.Screenshot) string {
-	filename := fmt.Sprintf("%d_%s_%d.png", screenshot.Timestamp.UnixMilli(), session.GetID(), screenshot.DisplayID)
+	filename := fmt.Sprintf("%d_%s_%d.tiff", screenshot.Timestamp.UnixMilli(), session.GetID(), screenshot.DisplayID)
 	return filepath.Join(session.GetDirPath(), filename)
 }
 
@@ -83,11 +83,15 @@ func (l *LocalFileLogger) LogScreenshot(session ports.LoggingSession, screenshot
 		return err
 	}
 	defer file.Close()
-	if err := png.Encode(file, screenshot.Image); err != nil {
+
+	// Save the screenshot image as a TIFF file with compression and predictor options
+	if err := tiff.Encode(file, screenshot.Image, &tiff.Options{Compression: tiff.Deflate, Predictor: true}); err != nil {
 		return err
 	}
+
 	return nil
 }
+
 func (l *LocalFileLogger) LogUIEvent(session ports.LoggingSession, event *core.UIEvent) error {
 	localSession, ok := session.(*LocalFileLoggerSession)
 	if !ok {
