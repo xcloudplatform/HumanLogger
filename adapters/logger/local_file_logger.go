@@ -23,7 +23,7 @@ type LocalFileLoggerSession struct {
 	sessionDir string
 }
 
-const LocalSessionSizeRotation = 1 * 1024 * 1024
+const LocalSessionSizeRotation = 30 * 1024 * 1024
 
 func (session *LocalFileLoggerSession) IsNeedsRotation() bool {
 	dirPath := session.GetDirPath()

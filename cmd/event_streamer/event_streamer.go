@@ -13,7 +13,7 @@ func main() {
 
 	l := logger.NewLocalFileLogger()
 	p := packer.ZipPacker{}
-	u := uploader.S3Uploader{}
+	u := uploader.GoogleStorageUploader{BucketName: "sessions-upload-v1"}
 	session, _ := l.StartLogging()
 
 	go func() {
