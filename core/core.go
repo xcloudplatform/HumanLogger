@@ -23,7 +23,7 @@ func NewCore() *Core {
 func (c *Core) Start() error {
 	c.UserActivity.start()
 
-	isScreenshotTakenChan := takeScreenshots(&c.UserActivity)
+	isScreenshotTakenChan := takeScreenshotsAttemptStream(&c.UserActivity)
 	getWindowTitles(isScreenshotTakenChan)
 
 	evChan := filterEvents(c.UserActivity.eventsChan, &c.UserActivity)
@@ -78,8 +78,8 @@ func filterEvents(events chan hook.Event, userActivity *UserActivity) chan hook.
 	return filteredEvents
 }
 
-func takeScreenshots(userActivity *UserActivity) chan bool {
-	isScreenshotTakenChan := make(chan bool, 2000)
+func takeScreenshotsAttemptStream(userActivity *UserActivity) chan bool {
+	stream := make(chan bool, 2000)
 
 	go func() {
 		for {
@@ -95,19 +95,17 @@ func takeScreenshots(userActivity *UserActivity) chan bool {
 			case <-userActivity.isActiveChan:
 				// Take a screenshot immediately when isActiveChan is changed
 				//fmt.Println("TAKING SCREENSHOT! (activeChan changed)")
-				//fixme compare screenshot
-				isScreenshotTakenChan <- true
+				stream <- true
 
 			case <-time.After(interval):
 				// Take a screenshot after sleeping for the appropriate interval
 				//fmt.Println("TAKING SCREENSHOT! (after sleeping)")
-				//fixme compare screenshot
-				isScreenshotTakenChan <- true
+				stream <- true
 			}
 		}
 	}()
 
-	return isScreenshotTakenChan
+	return stream
 }
 
 func getWindowTitles(isScreenshotTakenChan chan bool) {

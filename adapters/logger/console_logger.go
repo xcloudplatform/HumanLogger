@@ -46,7 +46,7 @@ func (l *consoleLogger) LogScreenshot(session ports.LoggingSession, screenshot *
 }
 
 func (l *consoleLogger) LogUIEvent(session ports.LoggingSession, event *core.UIEvent) error {
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := time.Now().Format("15:04:05.000")
 	fmt.Printf("[%s] %s: %v\n", session.GetID()[:4], timestamp, event)
 	return nil
 }
