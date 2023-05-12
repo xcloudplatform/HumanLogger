@@ -1,6 +1,8 @@
 package core
 
 import (
+	"fmt"
+	"sync"
 	"time"
 
 	hook "github.com/robotn/gohook"
@@ -10,10 +12,15 @@ type Core struct {
 	UserActivity     UserActivity
 	ScreenshotStream chan Screenshot
 	UIEventStream    chan UIEvent
+
+	lastScreenshots map[int]Screenshot
+	mux             sync.Mutex
 }
 
 func NewCore() *Core {
 	return &Core{
+		lastScreenshots: make(map[int]Screenshot),
+
 		UserActivity:     UserActivity{},
 		ScreenshotStream: make(chan Screenshot),
 		UIEventStream:    make(chan UIEvent),
@@ -25,7 +32,7 @@ func (c *Core) Start() error {
 
 	screenshotsAttemptsStream := makeScreenshotsAttemptStream(&c.UserActivity)
 	screenshotStream := makeScreenshotStream(screenshotsAttemptsStream)
-	deduplicatedScreenshotStream := makeDeduplicatedScreenshotStream(screenshotStream)
+	deduplicatedScreenshotStream := c.makeDeduplicatedScreenshotStream(screenshotStream)
 	getWindowTitles(screenshotsAttemptsStream)
 
 	go func() {
@@ -140,34 +147,49 @@ func makeScreenshotStream(screenshotsAttemptsStream chan bool) chan Screenshot {
 	return stream
 }
 
-func makeDeduplicatedScreenshotStream(screenshotStream chan Screenshot) chan Screenshot {
+func (c *Core) ResetLastScreenshots() {
+	c.mux.Lock()
+	defer c.mux.Unlock()
+
+	c.lastScreenshots = make(map[int]Screenshot)
+}
+
+func (c *Core) makeDeduplicatedScreenshotStream(screenshotStream chan Screenshot) chan Screenshot {
 	// Create a new channel to hold deduplicated screenshots
 	deduplicatedStream := make(chan Screenshot)
-
-	// Keep track of the last screenshot received for each display ID
-	lastScreenshots := make(map[int]Screenshot)
 
 	// Start a goroutine to read from the input stream and deduplicate the screenshots
 	go func() {
 		for screenshot := range screenshotStream {
-			diffScreenshot := screenshot
-
+			var diffScreenshot Screenshot
+			c.mux.Lock()
 			// Check if this screenshot is a duplicate of the last one we received for this display ID
-			if lastScreenshot, ok := lastScreenshots[screenshot.DisplayID]; ok {
+			if lastScreenshot, ok := c.lastScreenshots[screenshot.DisplayID]; ok {
 
 				same, diffScreenshotPtr, err := screenshot.Diff(&lastScreenshot)
 
 				if err != nil || same {
+					c.mux.Unlock()
 					continue
 				}
 				diffScreenshot = *diffScreenshotPtr
+				timestamp := time.Now().Format("15:04:05.000")
+
+				fmt.Printf("%s: frame\n", timestamp)
+
+			} else {
+				diffScreenshot = screenshot
+				timestamp := time.Now().Format("15:04:05.000")
+				fmt.Printf("%s: new keyframe\n", timestamp)
 			}
 
 			// This is a new screenshot for this display ID, so send it on the deduplicated stream
 			deduplicatedStream <- diffScreenshot
 
 			// Update the last screenshot map
-			lastScreenshots[screenshot.DisplayID] = screenshot
+
+			c.lastScreenshots[screenshot.DisplayID] = screenshot
+			c.mux.Unlock()
 		}
 
 		// Close the deduplicated stream when the input stream is closed

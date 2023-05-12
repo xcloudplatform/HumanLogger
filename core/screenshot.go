@@ -33,6 +33,7 @@ func CaptureScreenshots() ([]Screenshot, error) {
 			DisplayID: i,
 		}
 
+		fmt.Printf("%d captured screenshot\n", screenshot.Timestamp.UnixNano())
 		screenshots[i] = screenshot
 	}
 
@@ -108,9 +109,9 @@ func (s Screenshot) Diff(other *Screenshot) (bool, *Screenshot, error) {
 
 	// create a new screenshot with metadata from the new screenshot and the diff image
 	diffScreenshot := &Screenshot{
-		Timestamp: other.Timestamp,
+		Timestamp: s.Timestamp,
 		Image:     diffImg,
-		DisplayID: other.DisplayID,
+		DisplayID: s.DisplayID,
 	}
 
 	return false, diffScreenshot, nil

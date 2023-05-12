@@ -35,6 +35,8 @@ func main() {
 				if err == nil {
 					u.Upload(&session, packedSession)
 				}
+				c.ResetLastScreenshots()
+
 				session, _ = l.StartLogging()
 
 			}

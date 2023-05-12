@@ -23,7 +23,7 @@ type LocalFileLoggerSession struct {
 	sessionDir string
 }
 
-const LocalSessionSizeRotation = 5 * 1024 * 1024
+const LocalSessionSizeRotation = 1 * 1024 * 1024
 
 func (session *LocalFileLoggerSession) IsNeedsRotation() bool {
 	dirPath := session.GetDirPath()
@@ -92,6 +92,8 @@ func (l *LocalFileLogger) StartLogging() (ports.LoggingSession, error) {
 		return nil, err
 	}
 
+	timestamp := time.Now().Format("15:04:05.000")
+	fmt.Printf("[%s] %s: started logging\n", session.GetID()[:4], timestamp)
 	return session, nil
 }
 
@@ -101,6 +103,8 @@ func (l *LocalFileLogger) StopLogging(session ports.LoggingSession) error {
 }
 
 func (l *LocalFileLogger) LogScreenshot(session ports.LoggingSession, screenshot *core.Screenshot) error {
+	timestamp := time.Now().Format("15:04:05.000")
+
 	localSession, ok := session.(*LocalFileLoggerSession)
 	if !ok {
 		return fmt.Errorf("session is not of type LocalFileLoggerSession")
@@ -117,6 +121,7 @@ func (l *LocalFileLogger) LogScreenshot(session ports.LoggingSession, screenshot
 	if err := tiff.Encode(file, screenshot.Image, &tiff.Options{Compression: tiff.Deflate, Predictor: true}); err != nil {
 		return err
 	}
+	fmt.Printf("[%s] %s: %v %s\n", session.GetID()[:4], timestamp, screenshot, path)
 
 	return nil
 }
