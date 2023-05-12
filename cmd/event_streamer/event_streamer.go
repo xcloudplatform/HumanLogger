@@ -8,7 +8,7 @@ import (
 func main() {
 	c := core.NewCore()
 
-	l := logger.NewConsoleLogger()
+	l := logger.NewLocalFileLogger()
 
 	session, _ := l.StartLogging()
 

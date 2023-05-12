@@ -6,7 +6,6 @@ import (
 
 	"github.com/ClickerAI/ClickerAI/core"
 	"github.com/ClickerAI/ClickerAI/core/ports"
-	"github.com/google/uuid"
 )
 
 type consoleLogger struct{}
@@ -40,7 +39,7 @@ func (l *consoleLogger) StopLogging(session ports.LoggingSession) error {
 }
 
 func (l *consoleLogger) LogScreenshot(session ports.LoggingSession, screenshot *core.Screenshot) error {
-	timestamp := time.Now().Format(time.RFC3339)
+	timestamp := time.Now().Format("15:04:05.000")
 	fmt.Printf("[%s] %s: %v\n", session.GetID()[:4], timestamp, screenshot)
 	return nil
 }
@@ -49,12 +48,4 @@ func (l *consoleLogger) LogUIEvent(session ports.LoggingSession, event *core.UIE
 	timestamp := time.Now().Format("15:04:05.000")
 	fmt.Printf("[%s] %s: %v\n", session.GetID()[:4], timestamp, event)
 	return nil
-}
-
-func generateUUID() string {
-	u, err := uuid.NewRandom()
-	if err != nil {
-		panic(err)
-	}
-	return u.String()
 }
