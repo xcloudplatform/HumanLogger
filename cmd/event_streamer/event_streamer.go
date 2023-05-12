@@ -6,6 +6,7 @@ import (
 	"github.com/ClickerAI/ClickerAI/adapters/packer"
 	"github.com/ClickerAI/ClickerAI/adapters/uploader"
 	"github.com/ClickerAI/ClickerAI/core"
+	"os"
 )
 
 func main() {
@@ -42,15 +43,23 @@ func main() {
 					fmt.Printf("error stoping logging: %v", err)
 
 				}
-				packedSession, err := p.Pack(session)
-				if err == nil {
-					fmt.Printf("packed session: %v\n", packedSession)
-					err := u.Upload(&session, packedSession)
-					if err != nil {
-						fmt.Printf("error uploading: %v\n", err)
+				go func() {
+					packedSession, err := p.Pack(session)
+					if err == nil {
+						fmt.Printf("packed session: %v\n", packedSession)
+						err := u.Upload(&session, packedSession)
+						if err != nil {
+							fmt.Printf("error uploading: %v\n", err)
+						} else {
+							err := os.Remove(packedSession)
+							if err != nil {
+								fmt.Printf("Error deleting file: %v\n", err)
+							}
 
+						}
 					}
-				}
+				}()
+
 				c.ResetLastScreenshots()
 
 				session, err = l.StartLogging()
