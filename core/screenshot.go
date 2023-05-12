@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"github.com/kbinani/screenshot"
+
 	"image"
 	"image/color"
 	"time"
@@ -27,14 +28,14 @@ func CaptureScreenshots() ([]Screenshot, error) {
 		if err != nil {
 			continue
 		}
-		screenshot := Screenshot{
+		scr := Screenshot{
 			Timestamp: time.Now(),
 			Image:     img,
 			DisplayID: i,
 		}
 
-		fmt.Printf("%d captured screenshot\n", screenshot.Timestamp.UnixNano())
-		screenshots[i] = screenshot
+		fmt.Printf("%d captured screenshot\n", scr.Timestamp.UnixNano())
+		screenshots[i] = scr
 	}
 
 	return screenshots, nil
