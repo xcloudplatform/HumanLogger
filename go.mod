@@ -9,7 +9,6 @@ require (
 	github.com/gorilla/websocket v1.5.0
 	github.com/kbinani/screenshot v0.0.0-20210720154843-7d3a670d8329
 	github.com/labstack/echo/v4 v4.10.2
-	github.com/otiai10/gosseract/v2 v2.4.0
 	github.com/robotn/gohook v0.40.0
 	github.com/vcaesar/bitmap v0.10.0-beta3.2
 	github.com/vcaesar/gcv v0.40.5
