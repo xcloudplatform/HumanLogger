@@ -48,32 +48,6 @@ func (s Screenshot) String() string {
 
 }
 
-func CompareScreenshots(s1, s2 *Screenshot) bool {
-	// Check if the screenshots are for the same display
-	if s1.DisplayID != s2.DisplayID {
-		return false
-	}
-
-	// Check if the images have the same dimensions
-	bounds1 := s1.Image.Bounds()
-	bounds2 := s2.Image.Bounds()
-	if bounds1.Dx() != bounds2.Dx() || bounds1.Dy() != bounds2.Dy() {
-		return false
-	}
-
-	// Check if the pixel values are the same
-	// This is done by iterating over each pixel and comparing their RGBA values
-	for y := bounds1.Min.Y; y < bounds1.Max.Y; y++ {
-		for x := bounds1.Min.X; x < bounds1.Max.X; x++ {
-			if s1.Image.RGBAAt(x, y) != s2.Image.RGBAAt(x, y) {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
 func (s Screenshot) Diff(other *Screenshot) (bool, *Screenshot, error) {
 	// check if screenshots have the same dimensions
 	if !s.Image.Bounds().Eq(other.Image.Bounds()) {
