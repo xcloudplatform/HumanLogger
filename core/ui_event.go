@@ -19,7 +19,6 @@ func NewUIEvent(event hook.Event) UIEvent {
 	}
 }
 
-// String return formatted hook kind string
 func (e UIEvent) String() string {
 	switch e.Kind {
 	case hook.HookEnabled:

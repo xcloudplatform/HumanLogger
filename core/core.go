@@ -23,8 +23,16 @@ func NewCore() *Core {
 func (c *Core) Start() error {
 	c.UserActivity.start()
 
-	isScreenshotTakenChan := takeScreenshotsAttemptStream(&c.UserActivity)
-	getWindowTitles(isScreenshotTakenChan)
+	screenshotsAttemptsStream := makeScreenshotsAttemptStream(&c.UserActivity)
+	screenshotStream := makeScreenshotStream(screenshotsAttemptsStream)
+	getWindowTitles(screenshotsAttemptsStream)
+
+	go func() {
+		for scr := range screenshotStream {
+			c.ScreenshotStream <- scr
+		}
+
+	}()
 
 	evChan := filterEvents(c.UserActivity.eventsChan, &c.UserActivity)
 	for ev := range evChan {
@@ -78,7 +86,7 @@ func filterEvents(events chan hook.Event, userActivity *UserActivity) chan hook.
 	return filteredEvents
 }
 
-func takeScreenshotsAttemptStream(userActivity *UserActivity) chan bool {
+func makeScreenshotsAttemptStream(userActivity *UserActivity) chan bool {
 	stream := make(chan bool, 2000)
 
 	go func() {
@@ -105,6 +113,26 @@ func takeScreenshotsAttemptStream(userActivity *UserActivity) chan bool {
 		}
 	}()
 
+	return stream
+}
+
+func makeScreenshotStream(screenshotsAttemptsStream chan bool) chan Screenshot {
+	stream := make(chan Screenshot)
+	go func() {
+		for {
+			isScreenshotTaken := <-screenshotsAttemptsStream
+			if isScreenshotTaken {
+
+				if screenshots, err := CaptureScreenshots(); err == nil {
+
+					for _, scr := range screenshots {
+						stream <- scr
+					}
+				}
+			}
+
+		}
+	}()
 	return stream
 }
 
