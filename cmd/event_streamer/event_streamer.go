@@ -44,9 +44,10 @@ func main() {
 				}
 				packedSession, err := p.Pack(session)
 				if err == nil {
+					fmt.Printf("packed session: %v\n", packedSession)
 					err := u.Upload(&session, packedSession)
 					if err != nil {
-						fmt.Printf("error uploading: %v", err)
+						fmt.Printf("error uploading: %v\n", err)
 
 					}
 				}

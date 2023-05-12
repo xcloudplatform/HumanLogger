@@ -176,6 +176,12 @@ func (c *Core) makeDeduplicatedScreenshotStream(screenshotStream chan Screenshot
 
 				if err != nil || same {
 					c.mux.Unlock()
+					if err != nil {
+						fmt.Printf("error while diffing screnshot: %v\n", err)
+					} else {
+						fmt.Printf("same screenshot\n")
+					}
+
 					continue
 				}
 				diffScreenshot = *diffScreenshotPtr
