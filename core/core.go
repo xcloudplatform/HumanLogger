@@ -25,10 +25,11 @@ func (c *Core) Start() error {
 
 	screenshotsAttemptsStream := makeScreenshotsAttemptStream(&c.UserActivity)
 	screenshotStream := makeScreenshotStream(screenshotsAttemptsStream)
+	deduplicatedScreenshotStream := makeDeduplicatedScreenshotStream(screenshotStream)
 	getWindowTitles(screenshotsAttemptsStream)
 
 	go func() {
-		for scr := range screenshotStream {
+		for scr := range deduplicatedScreenshotStream {
 			c.ScreenshotStream <- scr
 		}
 
@@ -81,6 +82,7 @@ func filterEvents(events chan hook.Event, userActivity *UserActivity) chan hook.
 			}
 
 		}
+		close(filteredEvents)
 	}()
 
 	return filteredEvents
@@ -111,6 +113,7 @@ func makeScreenshotsAttemptStream(userActivity *UserActivity) chan bool {
 				stream <- true
 			}
 		}
+		close(stream)
 	}()
 
 	return stream
@@ -132,8 +135,40 @@ func makeScreenshotStream(screenshotsAttemptsStream chan bool) chan Screenshot {
 			}
 
 		}
+		close(stream)
 	}()
 	return stream
+}
+
+func makeDeduplicatedScreenshotStream(screenshotStream chan Screenshot) chan Screenshot {
+	// Create a new channel to hold deduplicated screenshots
+	deduplicatedStream := make(chan Screenshot)
+
+	// Keep track of the last screenshot received for each display ID
+	lastScreenshots := make(map[int]Screenshot)
+
+	// Start a goroutine to read from the input stream and deduplicate the screenshots
+	go func() {
+		for screenshot := range screenshotStream {
+			// Check if this screenshot is a duplicate of the last one we received for this display ID
+			if lastScreenshot, ok := lastScreenshots[screenshot.DisplayID]; ok {
+				if CompareScreenshots(&lastScreenshot, &screenshot) {
+					continue
+				}
+			}
+
+			// This is a new screenshot for this display ID, so send it on the deduplicated stream
+			deduplicatedStream <- screenshot
+
+			// Update the last screenshot map
+			lastScreenshots[screenshot.DisplayID] = screenshot
+		}
+
+		// Close the deduplicated stream when the input stream is closed
+		close(deduplicatedStream)
+	}()
+
+	return deduplicatedStream
 }
 
 func getWindowTitles(isScreenshotTakenChan chan bool) {
