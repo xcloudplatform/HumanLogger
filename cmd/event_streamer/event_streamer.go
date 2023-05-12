@@ -17,23 +17,35 @@ func main() {
 
 	go func() {
 		for ev := range c.UIEventStream {
-			l.LogUIEvent(session, &ev)
+			err := l.LogUIEvent(session, &ev)
+			if err != nil {
+				return
+			}
 		}
 	}()
 
 	go func() {
 		for scr := range c.ScreenshotStream {
-			l.LogScreenshot(session, &scr)
+			err := l.LogScreenshot(session, &scr)
+			if err != nil {
+				return
+			}
 		}
 	}()
 
 	go func() {
 		for active := range c.UserActivity.IsActiveStream {
 			if !active && session.IsNeedsRotation() {
-				l.StopLogging(session)
+				err := l.StopLogging(session)
+				if err != nil {
+					return
+				}
 				packedSession, err := p.Pack(session)
 				if err == nil {
-					u.Upload(&session, packedSession)
+					err := u.Upload(&session, packedSession)
+					if err != nil {
+						return
+					}
 				}
 				c.ResetLastScreenshots()
 
@@ -43,6 +55,9 @@ func main() {
 		}
 	}()
 
-	c.Start()
+	err := c.Start()
+	if err != nil {
+		return
+	}
 
 }
