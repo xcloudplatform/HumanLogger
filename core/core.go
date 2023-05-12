@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"time"
 
 	hook "github.com/robotn/gohook"
@@ -22,16 +21,15 @@ func NewCore() *Core {
 }
 
 func (c *Core) Start() error {
-
 	c.UserActivity.start()
 
 	isScreenshotTakenChan := takeScreenshots(&c.UserActivity)
 	getWindowTitles(isScreenshotTakenChan)
-	//select {}
+
 	evChan := filterEvents(c.UserActivity.eventsChan, &c.UserActivity)
 	for ev := range evChan {
-		fmt.Println("filtered: ", ev)
-
+		uiEv := NewUIEvent(ev)
+		c.UIEventStream <- uiEv
 	}
 
 	return nil
@@ -91,18 +89,18 @@ func takeScreenshots(userActivity *UserActivity) chan bool {
 			if isActive {
 				interval = 300 * time.Millisecond
 			}
-			fmt.Println("Sleeping for", interval)
+			//fmt.Println("Sleeping for", interval)
 
 			select {
 			case <-userActivity.isActiveChan:
 				// Take a screenshot immediately when isActiveChan is changed
-				fmt.Println("TAKING SCREENSHOT! (activeChan changed)")
+				//fmt.Println("TAKING SCREENSHOT! (activeChan changed)")
 				//fixme compare screenshot
 				isScreenshotTakenChan <- true
 
 			case <-time.After(interval):
 				// Take a screenshot after sleeping for the appropriate interval
-				fmt.Println("TAKING SCREENSHOT! (after sleeping)")
+				//fmt.Println("TAKING SCREENSHOT! (after sleeping)")
 				//fixme compare screenshot
 				isScreenshotTakenChan <- true
 			}

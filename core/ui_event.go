@@ -1,11 +1,19 @@
 package core
 
-import "time"
+import (
+	hook "github.com/robotn/gohook"
+	"time"
+)
 
 type UIEvent struct {
-	ID        string
-	UserID    string
-	Type      string
-	Target    string
-	Timestamp time.Time
+	Timestamp time.Time `json:"timestamp"`
+
+	hook.Event
+}
+
+func NewUIEvent(event hook.Event) UIEvent {
+	return UIEvent{
+		Timestamp: time.Now(),
+		Event:     event,
+	}
 }
