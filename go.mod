@@ -17,6 +17,7 @@ require (
 	github.com/vcaesar/gcv v0.40.5
 	github.com/vcaesar/imgo v0.30.2
 	golang.org/x/image v0.7.0
+	google.golang.org/api v0.44.0
 	google.golang.org/grpc v1.38.0
 	google.golang.org/protobuf v1.26.0
 )
@@ -83,7 +84,6 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	google.golang.org/api v0.44.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
