@@ -3,7 +3,7 @@ all: event_streamer grpc_robo_uiclient grpc_robo_server websocket_robo_server
 
 protoc:
 	@echo "Generating Go files"
-	cd src/proto && protoc --go_out=. --go-grpc_out=. \
+	cd proto && protoc --go_out=. --go-grpc_out=. \
 		--go-grpc_opt=paths=source_relative --go_opt=paths=source_relative *.proto
 
 grpc_robo_uiclient: protoc

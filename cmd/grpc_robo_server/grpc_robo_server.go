@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/ClickerAI/ClickerAI/src/proto"
+	pb "github.com/ClickerAI/ClickerAI/proto"
 
 	"google.golang.org/grpc"
 
