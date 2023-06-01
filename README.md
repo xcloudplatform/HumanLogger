@@ -1,3 +1,5 @@
+# HumanLogger
+Windows/Mac/Linux application that logs actions of the user to the cloud
 
 
 ## Logger
