@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/ClickerAI/ClickerAI/adapters/logger"
-	"github.com/ClickerAI/ClickerAI/adapters/packer"
-	"github.com/ClickerAI/ClickerAI/adapters/uploader"
-	"github.com/ClickerAI/ClickerAI/core"
 	"os"
+
+	"humanlogger/adapters/logger"
+	"humanlogger/adapters/packer"
+	"humanlogger/adapters/uploader"
+	"humanlogger/core"
 )
 
 func main() {

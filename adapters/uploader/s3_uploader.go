@@ -2,11 +2,12 @@ package uploader
 
 import (
 	"bytes"
-	"github.com/ClickerAI/ClickerAI/core/ports"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"humanlogger/core/ports"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/aws/aws-sdk-go/aws/session"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"

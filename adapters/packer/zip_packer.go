@@ -2,7 +2,7 @@ package packer
 
 import (
 	"archive/zip"
-	"github.com/ClickerAI/ClickerAI/core/ports"
+	"humanlogger/core/ports"
 	"io"
 	"os"
 	"path/filepath"

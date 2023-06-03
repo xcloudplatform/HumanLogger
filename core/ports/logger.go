@@ -1,6 +1,6 @@
 package ports
 
-import "github.com/ClickerAI/ClickerAI/core"
+import "humanlogger/core"
 
 type LoggingSession interface {
 	GetID() string

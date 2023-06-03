@@ -3,13 +3,14 @@ package logger
 import (
 	"encoding/json"
 	"fmt"
-	"golang.org/x/image/tiff"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/ClickerAI/ClickerAI/core"
-	"github.com/ClickerAI/ClickerAI/core/ports"
+	"golang.org/x/image/tiff"
+
+	"humanlogger/core"
+	"humanlogger/core/ports"
 )
 
 type LocalFileLogger struct {

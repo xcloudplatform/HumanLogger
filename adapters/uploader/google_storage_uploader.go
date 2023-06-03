@@ -1,13 +1,14 @@
 package uploader
 
 import (
-	"cloud.google.com/go/storage"
 	"context"
-	"github.com/ClickerAI/ClickerAI/core/ports"
-	"google.golang.org/api/option"
+	"humanlogger/core/ports"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"cloud.google.com/go/storage"
+	"google.golang.org/api/option"
 )
 
 type GoogleStorageUploader struct {

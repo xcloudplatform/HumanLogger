@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ClickerAI/ClickerAI/core"
-	"github.com/ClickerAI/ClickerAI/core/ports"
+	"humanlogger/core"
+	"humanlogger/core/ports"
 )
 
 type consoleLogger struct{}
